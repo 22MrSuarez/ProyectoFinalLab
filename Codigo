@@ -1,0 +1,516 @@
+//Jean Marc Suarez Buitrón/Edwin Adrada Ruíz -2017
+//Proyecto final Lab de programación- Universidad del Cauca
+//Programa Censo
+//Este código está pensado para ser compilado con IDE DevC++
+
+#include<stdio.h>                         
+#include<string.h>
+#include<stdlib.h>
+#include <windows.h>
+#define MAX 1000
+
+typedef struct
+{
+    char nombres[25];
+    char apellidos[25];
+    char NombreApellidos[50];
+    int  edad;
+    int  cedula;
+    int  TI;
+    char sexo[13];
+    char empleo[3];
+    int  hijos;
+}Datos;
+
+int menu();                                       //funcion para imprimir un menu principal y retornar la opcion escogida 
+void ejemploregistro();                           //funcion que implementa un pequeño tutorial del manejo del programa
+void datospersona(Datos [],int *);                //Funcion para registrar personas
+void Listar(Datos [],int );                       //Funcion Imprimir en pantalla la lista de personas registradas                      
+void buscar_cedula(Datos [],int );                //Funcion para buscar los datos de una persona segun su cedula
+int Nom_o_Ape();                                  //funcion de submenu, datos de persona por nombre y apellido
+void buscar_x_nom_ape(Datos [], int , int );      //segun sea del submenu datos persona nombre o apellido
+void imprimir(Datos [],int *,int );               //funcion para imprimir los datos de la persona a buscar
+void buscar_nom(Datos [], int );                  //funcion para buscar datos segun el/los nombres solamente    
+void buscar_ape(Datos [], int );                  //funcion para buscar datos segun el/los apellidos solamente
+void buscar_apeYnom(Datos [], int );              //funcion para buscar datos segun el nombre completo (nombres y apellidos)
+void mayores_edad(Datos [],int );                 //funcion para conocer la cantidad de pobladores mayores de edad
+void mujeres_may_30(Datos [],int );               //funcion para calcular la cantidad de mujeres mayores de 30 años
+void hombres_may_50(Datos [],int );               //funcion para calcular la cantidad de hombres mayores de 50 años
+void ordenacion_burbuja_nombre(Datos [],int );    //funcion para ordenar la estructura por orden alfabetico(nombres)
+ 
+int main()
+{
+	int opcion,n=-1,opdatos;
+	Datos personas[MAX];   
+    printf("Que desea hacer?\n");
+    opcion=1;
+    while(opcion!=8)
+    {
+    	opcion=menu();
+        system("CLS");
+            switch(opcion)
+            {
+                case 1:
+                	fflush(stdin);
+                	if(n==-1)
+                    	ejemploregistro();
+                    
+					datospersona(personas,&n);
+                break;
+                case 2:
+                    if(n==-1){
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),12);
+                    	printf("\n>No hay personas registradas en este momento\n\n\a");
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+                    
+					}	
+                    else{
+                       ordenacion_burbuja_nombre(personas,n);
+					   Listar(personas,n);
+                	}
+                break;                  
+                case 3:
+                    if(n==-1){
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),12);
+                    	printf("\n>No hay personas registradas en este momento\n\n\a");
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+                    
+					}	
+                    else
+                        buscar_cedula(personas,n);
+                break;
+                case 4:
+                    if(n==-1){
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),12);
+                    	printf("\n>No hay personas registradas en este momento\n\n\a");
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+                    
+					}	
+                    else{
+					    opdatos=Nom_o_Ape();
+                        buscar_x_nom_ape(personas,n,opdatos);
+					}	     
+                break;
+                case 5:
+                    if(n==-1){
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),12);
+                    	printf("\n>No hay personas registradas en este momento\n\n\a");
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+                    
+					}	
+                    else
+                        mayores_edad(personas,n);
+                break;
+                case 6:
+                    if(n==-1){
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),12);
+                    	printf("\n>No hay personas registradas en este momento\n\n\a");
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+                    
+					}	
+                    else
+                        mujeres_may_30(personas,n);
+                break;                  
+                case 7:
+                     if(n==-1){
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),12);
+                    	printf("\n>No hay personas registradas en este momento\n\n\a");
+                    	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+                    
+					}	
+                    else
+                        hombres_may_50(personas,n);
+                break;
+                case 8:
+                    printf("\nUsted escogio salir,que tenga un buen dia.\n\n");
+                break;
+            }
+        system("pause");     
+    }
+    return 0;
+}
+
+
+int menu()
+{
+    int opcion;
+    SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+    system("cls");
+    printf("\t\t\tBIENVENIDO AL PROGRAMA\n");
+    printf("----------------------------------------------------------------------\n");
+    printf("\nOpciones: ");
+    printf("\n1. 	Registrar Personas");
+    printf("\n2.	Ver lista de personas registradas");
+    printf("\n3.	Consultar datos de una persona segun su Cedula/T.I");
+    printf("\n4.	Consultar datos de una persona segun su nombre");
+    printf("\n5.	Calcular la cantidad de personas mayores de edad");
+    printf("\n6.	Calcular el numero de mujeres mayores de 30 anios");
+    printf("\n7.	Calcular el numero de hombres mayores de 50 anios");
+    printf("\n8.	salir ");
+    printf("\nIngrese la opcion : _ ");
+    do{
+    	scanf("%i", &opcion);
+    	if((opcion!=1)&&(opcion!=2)&&(opcion!=3)&&(opcion!=4)&&(opcion!=5)
+		    &&(opcion!=6)&&(opcion!=7)&&(opcion!=8))
+    	{
+    		printf("Opcion invalida, intentelo nuevamente\n\a");
+		}	
+	}while((opcion!=1)&&(opcion!=2)&&(opcion!=3)&&(opcion!=4)&&(opcion!=5)
+	        &&(opcion!=6)&&(opcion!=7)&&(opcion!=8));
+			  
+	return opcion;
+}
+
+
+void datospersona(Datos personas[],int *n)
+{
+	int key=0,op;
+	char fom;
+	while(key==0)
+	{
+		if((*n+1)<MAX){
+		
+		    printf("\t\t\tREGISTRAR PERSONAS\n");
+	        printf("----------------------------------------------------------------------\n");
+			*n=*n+1;
+			printf("\n>Ingrese el/los nombres \n");
+			gets(personas[*n].nombres);
+			printf(">Ingrese los Apellidos\n");
+			gets(personas[*n].apellidos);
+			strcpy (personas[*n].NombreApellidos,personas[*n].nombres);     //Copia el valor de personas[*n].nombres a personas[*n].NombreApellidos
+			strcat (personas[*n].NombreApellidos," ");                      //Agrega un espacio entre los nombres y apellidos, junta la primera cadena y la segunda
+  			strcat (personas[*n].NombreApellidos,personas[*n].apellidos);   //con las misma funcion junta las cadenas y las retorna en personas[*n].NombreApellidos
+			printf(">Ingrese la edad\n");
+			do{
+				scanf("%i",&personas[*n].edad);
+				if(personas[*n].edad < 0)
+					printf("---Intentelo nuevamente---\n\a");
+			}while(personas[*n].edad < 0);
+		    if(personas[*n].edad >= 18){
+				printf(">Ingrese la cedula:\n");
+				scanf("%i",&personas[*n].cedula);
+				personas[*n].TI=0;		    	
+			}
+			else{
+				printf(">Ingrese la tarjeta de identidad:\n");
+			    scanf("%i",&personas[*n].TI);
+			    personas[*n].cedula=0;
+			}
+			fflush(stdin);
+			printf(">Sexo:\n");
+			printf(" a.Masculino\n");
+			printf(" b.Femenino\n");
+			do{
+				scanf("%c",&fom);
+				if(fom=='a')
+				    strcpy(personas[*n].sexo,"Masculino");
+				else
+					strcpy(personas[*n].sexo,"Femenino");
+			}while((fom!='a')&&(fom!='b'));	    
+			fflush(stdin);
+			printf(">Tiene empleo?:\n");
+			printf(" a.Si\n");
+			printf(" b.No\n");
+		    do{
+				scanf("%c",&fom);
+				if(fom=='a')
+				    strcpy(personas[*n].empleo,"Si");
+				else
+					strcpy(personas[*n].empleo,"No");
+			}while((fom!='a')&&(fom!='b'));	    
+		    printf(">Cuantos hijos tiene?\n");
+		    scanf("%i",&personas[*n].hijos),
+		    printf("\n>Hay mas personas para enlistar?<\n\n0-Si\n1-NO\n\n");
+		    do{
+		
+		      	scanf("%i",&op);
+		      	
+		   		switch(op)
+		    	{
+		    		case 0:
+		    			key=0;
+					break;
+		    		case 1:
+		        		key=1;
+		    		break;
+		    		default:
+		    			printf("---Intentelo nuevamente---\n\a");
+		    	}
+		    }while((op!=1)&&(op!=0));	
+			fflush(stdin);
+			system("CLS");
+		}	
+	   else{
+	   		printf("\t\t\tREGISTRAR PERSONAS\n");
+	        printf("----------------------------------------------------------------------\n");
+	   		printf("\n--Se ha sobrepasado el limite de pobladores--\n\n\a");
+	   		key=1;
+	   }
+	}				        		    	
+}
+
+
+
+void Listar(Datos personas[],int n)
+{
+    int i;
+    printf("\t\t    LISTA DE HABITANTES REGISTRADOS\n");
+    printf("----------------------------------------------------------------------\n");
+    for(i=0;i<=n;i++)
+    {
+    	printf("PERSONA #%i\n",i+1);
+        printf("\nNombres   = %s",personas[i].nombres);
+        printf("\nApellidos = %s",personas[i].apellidos);
+        printf("\nEdad      = %i",personas[i].edad);
+        printf("\nSexo      = %s",personas[i].sexo);
+        printf("\nEmpleo    = %s",personas[i].empleo);
+        printf("\nHijos     = %i",personas[i].hijos);
+        if(personas[i].TI==0)
+        	printf("\nCedula    = %i\n\n",personas[i].cedula);
+        else	
+        	printf("\nT.I       = %i     (Tarjeta de identidad)\n\n",personas[i].TI);
+        
+    }
+}
+
+void imprimir(Datos personas[],int *flag,int i )
+{
+	printf("\nPERSONA #%i\n",i+1);
+    printf("\nNombres   = %s",personas[i].nombres);
+    printf("\nApellidos = %s",personas[i].apellidos);
+	printf("\nEdad      = %i",personas[i].edad);
+	printf("\nSexo      = %s",personas[i].sexo);
+	printf("\nEmpleo    = %s",personas[i].empleo);
+	printf("\nHijos     = %i",personas[i].hijos);
+	if(personas[i].TI==0)
+    	printf("\nCedula    = %i\n\n",personas[i].cedula);
+	else	
+	    printf("\nT.I       = %i     (Tarjeta de identidad)\n\n",personas[i].TI);
+			
+	*flag=1;
+}
+
+void buscar_cedula(Datos personas[],int n)
+{
+	int i,ced,flag=0;
+    printf("\t\t    CONSULTA DE DATOS-CEDULA/T.I\n");
+    printf("----------------------------------------------------------------------\n");
+    printf("\n>Ingrese el numero de cedula que desea buscar\n\n");
+    scanf("%i",&ced);
+    for(i=0;i<=n;i++)
+    {
+    	if(ced==personas[i].cedula){
+	    	imprimir(personas,&flag,i);
+			break;		
+		}
+    }
+    if(flag==0)
+    	printf("\n\nNo se encontraron los datos de la persona.\nVerifique el numero de cedula e intentelo nuevamente\n\n\a");
+    	
+}
+
+int Nom_o_Ape()
+{
+	int opcion;
+    printf("\t\t    CONSULTA DE DATOS-NOMBRES/APELLIDOS.I\n");
+    printf("----------------------------------------------------------------------\n");
+    printf("\nOpciones: ");
+    printf("\n\n1.  Consultar datos segun Nombres           \n    (En caso de no conocer los apellidos)");
+    printf("\n\n2.  Consultar datos segun Apellidos         \n    (En caso de no conocer los nombres)");
+    printf("\n\n3.  Consultar datos segun Nombres y apellidos\n    (En caso de conocer nombre y apellidos)");
+    printf("\n\n4.  Salir\n");
+    printf("\nIngrese la opcion : _ ");
+    do{
+    	scanf("%i", &opcion);
+    	if((opcion!=1)&&(opcion!=2)&&(opcion!=3)&&(opcion!=4))
+    	{
+    		printf("Opcion invalida, intentelo nuevamente\n\a");
+		}	
+	}while((opcion!=1)&&(opcion!=2)&&(opcion!=3)&&(opcion!=4));		  
+	return opcion;
+}
+
+void buscar_x_nom_ape(Datos personas[], int n , int opdatos ) 
+{
+	switch(opdatos)
+	{
+		case 1:
+			fflush(stdin);
+			buscar_nom(personas,n);
+		break;	
+		case 2:
+			fflush(stdin);
+			buscar_ape(personas,n);
+		break;	
+		case 3:
+			fflush(stdin);
+			buscar_apeYnom(personas,n);
+		break;	
+		case 4:
+			printf("\nUsted escogio salir,que tenga un buen dia.\n\n");
+		break;	
+	}
+}
+void buscar_nom(Datos personas[], int n)
+{
+	int i, flag=0,cont=0;
+	char nombre[25];
+	printf("\n\n>Ingrese los nombres de la persona:\n ");
+	gets(nombre);
+	for(i=0;i<=n;i++)
+	{
+		if((strcmp(personas[i].nombres,nombre)==0)){
+		    imprimir(personas,&flag,i);
+			cont++;	
+		}
+	}
+	if(flag==0)
+    	printf("\n\nNo se encontraron los datos de la persona.\nVerifique que el/los nombres esten bien escritos\n\n\a");
+	else
+		printf("\n\nSe encontraron un total de %i personas con el mismo nombre\n\n",cont);
+	
+	fflush(stdin);
+}
+void buscar_ape(Datos personas[], int n)
+{
+	int i, flag=0,cont=0;
+	char apellido[25];
+	printf("\n\n>Ingrese los apellidos de la persona:\n ");
+	gets(apellido);
+	for(i=0;i<=n;i++)
+	{
+		if((strcmp(personas[i].apellidos,apellido)==0)){
+		    imprimir(personas,&flag,i);
+			cont++;	
+		}
+	}
+	if(flag==0)
+    	printf("\n\nNo se encontraron los datos de la persona.\nVerifique que el/los apellidos esten bien escritos\n\n\a");
+	else
+		printf("\n\nSe encontraron un total de %i personas con el/los mismos apellidos\n\n",cont);
+
+	fflush(stdin);
+}
+void buscar_apeYnom(Datos personas[], int n)
+{
+	int i, flag=0,cont=0;
+	char nomApe[50];
+	printf("\n\n>Ingrese el nombre completo de la persona (nombres y apellidos):\n ");
+	gets(nomApe);
+	for(i=0;i<=n;i++)
+	{
+		if((strcmp(personas[i].NombreApellidos,nomApe)==0)){
+		    imprimir(personas,&flag,i);
+		}
+	}
+	if(flag==0){
+		printf("\n\nNo se encontraron los datos de la persona.\nVerifique que el nombre este bien escrito de la siguiente forma: \n\a");
+	    printf("\nNombres ******* Apellidos *******   (Ej: Jean Marc Suarez Buitron))\n\n");
+	}
+	fflush(stdin);
+}
+
+void ejemploregistro()
+{
+	
+	printf("\t\t\tREGISTRAR PERSONAS\n");
+	printf("----------------------------------------------------------------------\n");
+	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),10);
+	printf("\n\nAntes de empezar a llenar la informacion asegurese en entender el funcionamiento adecuado del software");
+	printf("\nLos Datos deben ser llenados de la siguiente forma:");
+	printf("\n\n>Nombres  : ****** ******     (Escriba los nombres de la persona de la forma adecuada)");
+	printf("\n>Apellidos: ****** ******     (Escriba los apellidos de la persona de la forma adecuada)");
+	printf("\n>Edad     : **                (Escriba la edad de la persona solamente)");
+	printf("\n>Cedual/Ti: *************     (Escriba solamente la cedula o la tarjeta de identidad)");
+	printf("\n>Sexo     : *********         (Escriba \"a\" si Es Masculino o \"b\" si es Femenino dependiendo al genero de la persona)");
+	printf("\n>Empleo   : **                (Escriba \"a\" si la persona tiene empleo, en caso contrario escriba \"b\")");
+	printf("\n>Hijos    : **                (Escriba Solamente la cantidad de hijos que tiene la persona, de no tener ingrese 0)");
+	
+	printf("\n\nSi no esta seguro(a) del funcionamiento del programa, cosulte con su asesor mas cercano\n\n");
+	SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),15);
+	system("pause");
+	system("CLS");
+}
+void mayores_edad(Datos personas[],int n)
+{
+	int i,cont=0,flag=0;
+    printf("\t\tCANTIDAD DE POBLADORES MAYORES DE EDAD\n");
+    printf("----------------------------------------------------------------------\n");
+    for(i=0;i<=n;i++)
+    {
+    	if(personas[i].edad>=18){
+	    	cont++;
+	    	flag=1;
+					
+		}
+    }
+    if(flag==0)
+    	printf("\n\nNo hay personas mayores de edad\n\n\a");
+    else
+		printf("\nHay un total de %i pobladores mayores de edad\n\n",cont);
+}
+
+void mujeres_may_30(Datos personas[],int n)
+{
+	int i,cont=0,flag=0;
+    printf("\t\tCANTIDAD DE MUJERES MAYORES DE 30 ANIOS\n");
+    printf("----------------------------------------------------------------------\n");
+    for(i=0;i<=n;i++)
+    {
+    	if((strcmp(personas[i].sexo,"Femenino")==0)){
+		    if(personas[i].edad>30){
+		    	cont++;
+				flag=1;	
+			}
+			
+		}
+    }
+    if(flag==0)
+    	printf("\n\nNo hay Mujeres mayores de 30 anios\n\n\a");
+    else
+		printf("\nHay un total de %i Mujeres mayores de 30 anios\n\n",cont);
+}
+
+void hombres_may_50(Datos personas[],int n)
+{
+	int i,cont=0,flag=0;
+    printf("\t\tCANTIDAD DE HOMBRES MAYORES DE 50 ANIOS\n");
+    printf("----------------------------------------------------------------------\n");
+    for(i=0;i<=n;i++)
+    {
+    	if((strcmp(personas[i].sexo,"Masculino")==0)){
+		    if(personas[i].edad>50){
+		    	cont++;
+				flag=1;	
+			}
+			
+		}
+    }
+    if(flag==0)
+    	printf("\n\nNo hay Hombres mayores de 50 anios\n\n\a");
+    else
+		printf("\nHay un total de %i Hombres mayores de 50 anios\n\n",cont);
+}
+
+void ordenacion_burbuja_nombre(Datos personas[],int n)
+{
+    int i,j, flag;
+ 	Datos aux;
+    int temp;
+    for(i=0; i<=n; i++)
+    {
+		flag=0;         
+	        for(j=n; j>=i; j--)
+			{
+	            temp=stricmp(personas[j-1].NombreApellidos,personas[j].NombreApellidos);//de lamisma forma que strcmp compara 2 cadenas y retorna        
+	            if(temp>0){                                                             //un valor dependiendo de si es mayor, menor o igual,
+	                aux=personas[j];                                                    //solo que esta no tiene en cuenta mayusculas
+	                personas[j]=personas[j-1];
+	                personas[j-1]=aux;
+	                flag=1; 
+	         	}
+	        }
+	        if (flag==0)
+	        break; 
+    }
+}
